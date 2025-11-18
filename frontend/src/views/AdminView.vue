@@ -1,6 +1,22 @@
 <template>
-	<div>
+	<div class="admin">
 		<h1>Admins Page</h1>
-		<p>Welcome</p>
+		<p>Welcome {{ username }}!</p>
 	</div>
 </template>
+
+<script setup>
+import { computed } from "vue"
+import { useStore } from "vuex"
+
+const store = useStore()
+
+const username = computed(() => store.getters.username)
+</script>
+
+<style scoped>
+.admin {
+	padding: 2rem;
+	text-align: center;
+}
+</style>
