@@ -40,6 +40,8 @@ router.beforeEach((to, from, next) => {
 	const allowedRoles = to.meta.allowedRoles
 	const isAuthenticated = store.getters.isAuthenticated
 	const userRoles = store.getters.userRoles
+	const isUserActive = store.getters.isUserActive
+	const userStatus = store.getters.userStatus
 
 	if (!requiresAuth) {
 		next()
@@ -48,6 +50,19 @@ router.beforeEach((to, from, next) => {
 
 	if (!isAuthenticated) {
 		next({ name: "Login" })
+		return
+	}
+
+	if (!isUserActive) {
+		const statusMessage = userStatus === "Deleted" 
+			? "Your account has been deleted." 
+			: "Your account has been disabled."
+		
+		store.dispatch("logout")
+		next({ 
+			name: "Login",
+			query: { error: statusMessage }
+		})
 		return
 	}
 
