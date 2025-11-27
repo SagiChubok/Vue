@@ -3,7 +3,7 @@ import axios from "axios"
 
 export default createStore({
 	state: {
-		user: null, 
+		user: null,
 		isAuthenticated: false,
 	},
 	getters: {
@@ -33,10 +33,24 @@ export default createStore({
 		SET_USER(state, user) {
 			state.user = user
 			state.isAuthenticated = !!user
+
+			if (user) {
+				try {
+					localStorage.setItem("auth_user", JSON.stringify(user))
+				} catch (e) {
+					console.error("Failed to set user", e)
+				}
+			}
 		},
 		CLEAR_USER(state) {
 			state.user = null
 			state.isAuthenticated = false
+
+			try {
+				localStorage.removeItem("auth_user")
+			} catch (e) {
+				console.error("Failed to clear user", e)
+			}
 		},
 	},
 	actions: {
@@ -91,13 +105,28 @@ export default createStore({
 				}
 			}
 		},
-		
 		logout({ commit }) {
 			commit("CLEAR_USER")
 		},
 		
-		checkAuth({ commit, state }) {
+		checkAuth({ state }) {
 			return state.isAuthenticated
+		},
+
+		initializeAuth({ commit, state }) {
+			if (state.isAuthenticated && state.user) return
+
+			try {
+				const saved = localStorage.getItem("auth_user")
+				if (saved) {
+					const parsed = JSON.parse(saved)
+					if (parsed) {
+						commit("SET_USER", parsed)
+					}
+				}
+			} catch (e) {
+				console.error("Failed to init user", e)
+			}
 		},
 	},
 	modules: {
