@@ -10,13 +10,13 @@ axios.interceptors.response.use(
 	(error) => {
 		if (error.response?.status === 401) {
 			const errorMessage = error.response?.data?.message || ""
-			
+
 			store.commit("CLEAR_USER")
-			
+
 			if (router.currentRoute.value.name !== "Login") {
-				router.push({ 
-					name: "Login", 
-					query: { error: errorMessage } 
+				router.push({
+					name: "Login",
+					query: { error: errorMessage }
 				})
 			}
 		}
@@ -24,8 +24,10 @@ axios.interceptors.response.use(
 	}
 )
 
-const app = createApp(App)
+store.dispatch("initializeAuth").finally(() => {
+	const app = createApp(App)
 
-app.use(router)
-app.use(store)
-app.mount("#app")
+	app.use(store)
+	app.use(router)
+	app.mount("#app")
+})
